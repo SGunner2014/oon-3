@@ -1,68 +1,78 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The error codes are as follows:
 
-## Available Scripts
+0. Successful query.
+1. The operating mode was not specified.
+2. The operating mode specified was not valid.
 
-In the project directory, you can run:
+# Required fields for posts table
 
-### `yarn start`
+```
+id - integer - auto inc
+title - varchar
+link - link to article - varchar
+redditLink - link to reddit post - varchar
+isOnion - boolean
+```
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Creation for this table:
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+```SQL
+CREATE TABLE `posts` (
+    id INTEGER AUTO_INCREMENT,
+    title VARCHAR(512),
+    link VARCHAR(512),
+    redditLink VARCHAR(512),
+    isOnion BOOLEAN,
+    PRIMARY KEY(id)
+);
+```
 
-### `yarn test`
+# Required fields for the users table
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+This table will secure the admin area of this application and will allow the user to login with their credentials.
 
-### `yarn build`
+fields needed:
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+id - integer - auto inc
+username - varchar(30) - unique
+salt - varchar(10)
+hash - varchar(512)
+last_login - bigInteger
+```
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+Creation for this table:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```SQL
+CREATE TABLE `users` (
+    id INTEGER AUTO_INCREMENT,
+    username VARCHAR(30) UNIQUE,
+    salt VARCHAR(10),
+    passhash VARCHAR(512),
+    last_login BIGINT,
+    PRIMARY KEY(id)
+);
+```
 
-### `yarn eject`
+# Required fields for the login_tokens table
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+This table will store the token for each user's current login token. It will allow the application to verify that the user is logged in with a currently valid token.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Required fields:
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```
+id - integer - auto_increment
+userid - integer - references users(id)
+token - varchar(256)
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Creating the table:
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+```SQL
+CREATE TABLE login_tokens (
+    id INTEGER AUTO_INCREMENT,
+    userid INTEGER REFERENCES users(id),
+    token VARCHAR(256),
+    PRIMARY KEY(id)
+);
+```
