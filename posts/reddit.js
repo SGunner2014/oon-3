@@ -48,15 +48,13 @@ function processPosts(result, isOnion) {
                             isOnion
                         ];
 
-                        conn.query(insQuery, qdata, (err, res, fields) => {
-                            console.log(err);
-                        });
+                        conn.query(insQuery, qdata, (err, res, fields) => {});
                     }
                 }
             });
         }
 
-        setTimeout(() => conn.end, 1000);
+        setTimeout(() => conn.end(), 1000);
     } else {
         console.log("failed to get posts");
     }

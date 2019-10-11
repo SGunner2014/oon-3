@@ -1,6 +1,6 @@
 const INITIAL_STATE = {
     isOnion: null,
-    title: "this is a title",
+    title: "",
     redditLink: null,
     link: null,
 };

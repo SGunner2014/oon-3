@@ -19,12 +19,19 @@ function handleFetch(req, res) {
 
     let query = "SELECT * FROM `posts` ORDER BY RAND() LIMIT 1"; // Obtain 1 random post
     conn.query(query, (error, results, fields) => {
-        res.send({
-            succ: true,
-            contents: results,
-            error: error,
-            code: 0
-        });
+        if (error) {
+            res.send({
+                succ: false,
+                error: error,
+                code: -1
+            });
+        } else {
+            res.send({
+                succ: true,
+                contents: results,
+                code: 0,
+            });
+        }
 
         conn.end();
     });
