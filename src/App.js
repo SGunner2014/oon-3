@@ -8,8 +8,9 @@ import AdminLogin from './pages/AdminLogin';
 import jQuery from 'jquery';
 import 'bootstrap/dist/js/bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import ProtectedRoute from './routing/ProtectedRoute';
 
-const App = () => {
+const App = ({loggedIn}) => {
   return (
     <div className="App">
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -31,11 +32,15 @@ const App = () => {
       </nav>
       <Switch>
         <Route exact path="/" component={Home}></Route>
-        <Route exact path="/admin" component={Admin}></Route>
+        <ProtectedRoute exact path="/admin" component={Admin} loggedIn={loggedIn}></ProtectedRoute>
         <Route exact path="/admin/login" component={AdminLogin}></Route>
       </Switch>
     </div>
   );
 };
 
-export default connect()(App);
+const mapStateToProps = (state) => ({
+  loggedIn: state.loggedIn,
+});
+
+export default connect(mapStateToProps)(App);
