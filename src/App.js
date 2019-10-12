@@ -9,8 +9,15 @@ import jQuery from 'jquery';
 import 'bootstrap/dist/js/bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import ProtectedRoute from './routing/ProtectedRoute';
+import {setUsername, setToken, setLoggedIn} from './redux/actions/adminActions';
 
-const App = ({loggedIn}) => {
+const App = ({dispatch, loggedIn}) => {
+  const logout = () => {
+    dispatch(setUsername(""));
+    dispatch(setToken(""));
+    dispatch(setLoggedIn(false));
+  };
+
   return (
     <div className="App">
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -28,6 +35,13 @@ const App = ({loggedIn}) => {
               <Link className="nav-link" to="/admin">Admin Area</Link>
             </li>
           </ul>
+          {loggedIn && (
+            <ul className="navbar-nav">
+              <li className="nav-item">
+                <a href="#" className="nav-link" onClick={logout}>Logout</a>
+              </li>
+            </ul>
+          )}
         </div>
       </nav>
       <Switch>
@@ -40,7 +54,7 @@ const App = ({loggedIn}) => {
 };
 
 const mapStateToProps = (state) => ({
-  loggedIn: state.loggedIn,
+  loggedIn: state.adminReducer.loggedIn,
 });
 
 export default connect(mapStateToProps)(App);
