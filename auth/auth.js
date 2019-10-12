@@ -22,16 +22,20 @@ function createConn() {
 function verifyToken(token, succ, nosucc) {
     let conn = createConn();
     let initialQuery = `SELECT * FROM login_tokens
-        WHERE userid = ?;`;
+        WHERE token = ?;`;
     let vars = [token];
 
     conn.query(initialQuery, vars, (err, res, fields) => {
         conn.end(); // close the connection
 
+        if (err)
+            console.log(err);
+
         if (res.length === 1) {
-            if (res.token) {
-                if (res.token === token)
+            if (res[0].token) {
+                if (res[0].token === token)
                     succ();
+                    return;
             }
         }
 
