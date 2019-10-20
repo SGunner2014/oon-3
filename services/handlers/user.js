@@ -64,6 +64,7 @@ function handleUserLogin(req, res) {
 function handleMassFetch(req, res) {
     let params = req.query;
     if (params.beginning && params.token) {
+        params.beginning = parseInt(params.beginning);
         auth.verifyToken(params.token, () => {
             let conn = createConn();
             let initialQuery = `SELECT * FROM posts
@@ -81,7 +82,7 @@ function handleMassFetch(req, res) {
                     conn.end();
                 } else {
                     // now, we see if there are posts before and after
-                    initialQuery = `SELECT COUNT(id) FROM posts AS postCount
+                    initialQuery = `SELECT COUNT(id) AS 'postCount' FROM posts
                         WHERE id < ?
                         ORDER BY id;`;
                     conn.query(initialQuery, qData, (err, resuu, fields) => {
@@ -94,7 +95,7 @@ function handleMassFetch(req, res) {
                                 _: err,
                             });
                         } else {
-                            initialQuery = `SELECT COUNT(id) FROM posts AS postCount
+                            initialQuery = `SELECT COUNT(id) AS 'postCount' FROM posts
                                 WHERE id >= ?
                                 ORDER BY id;`;
                             qData = [params.beginning + 25];
@@ -112,6 +113,7 @@ function handleMassFetch(req, res) {
                                         contents: {
                                             hasPrevious: resuu[0]["postCount"] > 0,
                                             hasNext: resuuu[0]["postCount"] > 0,
+                                            dump: qData,
                                             posts: resu,
                                         }
                                     });

@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Admin from './pages/Admin';
 import AdminLogin from './pages/AdminLogin';
 import Moderate from './pages/Moderate';
+import ModeratePost from './pages/ModeratePost';
 import jQuery from 'jquery';
 import 'bootstrap/dist/js/bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -49,6 +50,7 @@ const App = ({dispatch, loggedIn}) => {
         <Route exact path="/" component={Home}></Route>
         <ProtectedRoute exact path="/admin" component={Admin} loggedIn={loggedIn}></ProtectedRoute>
         <ProtectedRoute exact path="/admin/moderate" component={Moderate} loggedIn={loggedIn}></ProtectedRoute>
+        <ProtectedRoute exact path="/admin/moderate/*" component={ModeratePost} loggedIn={loggedIn}></ProtectedRoute>
         <Route exact path="/admin/login" component={AdminLogin}></Route>
       </Switch>
     </div>
