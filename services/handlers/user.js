@@ -13,6 +13,7 @@
     5 - Token and beginning not specified
     6 - The database was unable to handle your request
     7 - Invalid token
+    8 - Token and post id not specified
 */
 
 const auth = require("../auth/auth");
@@ -137,6 +138,28 @@ function handleMassFetch(req, res) {
             succ: false,
             message: "Beginning or token not specified",
             code: 5,
+        });
+    }
+}
+
+// Handles a GET_POST_DETAILS request
+function handleGetPostDetails(req, res) {
+    let params = req.query;
+    if (params.token && params.postid) {
+        auth.verifyToken(params.token, () => {
+
+        }, () => {
+            res.send({
+                succ: false,
+                message: "Invalid token",
+                code: 7,
+            });
+        });
+    } else {
+        res.send({
+            succ: false,
+            message: "Token and post id not specified",
+            code: 8,
         });
     }
 }
