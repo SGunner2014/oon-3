@@ -3,7 +3,7 @@
 */
 
 const axios = require("axios");
-const ROOT_ADDR = "http://localhost:3000/api/user?mode=FETCH_POSTS";
+const ROOT_ADDR = "http://localhost:8080/api/user?mode=FETCH_POSTS";
 
 export const getPosts = (firstID = 0, token, callback) => {
     axios.get(ROOT_ADDR + "&beginning=" + firstID + "&token=" + token)

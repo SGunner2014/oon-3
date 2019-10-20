@@ -1,5 +1,5 @@
 const axios = require("axios");
-const ROOT_URL = "http://localhost:3000/api/user"; // will eventually be https
+const ROOT_URL = "http://localhost:8080/api/auth"; // will eventually be https
 
 // Queries the remote server and attempts to log the user in
 const login = (username, password, callback) => {

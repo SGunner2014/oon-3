@@ -6,3 +6,5 @@ const app = express();
 app.get("/api/auth*", (req, res) => {
 	userHandler(req, res);
 });
+
+app.listen(3001);

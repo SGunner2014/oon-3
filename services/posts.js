@@ -1,9 +1,9 @@
 const express = require("express");
-const postsHandler = require("./handlers/posts");
+const postsHandler = require("./handlers/user");
 
 const app = express();
 
-app.get("/api/posts*", (req, res) => {
+app.get("/api/user*", (req, res) => {
 	postsHandler(req, res);
 });
 

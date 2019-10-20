@@ -80,11 +80,46 @@ function handleMassFetch(req, res) {
                     });
                     conn.end();
                 } else {
-                    res.send({
-                        succ: true,
-                        contents: resu,
+                    // now, we see if there are posts before and after
+                    initialQuery = `SELECT COUNT(id) FROM posts AS postCount
+                        WHERE id < ?
+                        ORDER BY id;`;
+                    conn.query(initialQuery, qData, (err, resuu, fields) => {
+                        if (err) {
+                            conn.end();
+                            res.send({
+                                succ: false,
+                                message: "The database was unable to handle your request.",
+                                code: 6,
+                                _: err,
+                            });
+                        } else {
+                            initialQuery = `SELECT COUNT(id) FROM posts AS postCount
+                                WHERE id >= ?
+                                ORDER BY id;`;
+                            qData = [params.beginning + 25];
+                            conn.query(initialQuery, qData, (err, resuuu, fields) => {
+                                if (err) {
+                                    conn.end();
+                                    res.send({
+                                        succ: false,
+                                        message: "The database was unable to handle your request.",
+                                        code: 6,
+                                    });
+                                } else {
+                                    res.send({
+                                        succ: true,
+                                        contents: {
+                                            hasPrevious: resuu[0]["postCount"] > 0,
+                                            hasNext: resuuu[0]["postCount"] > 0,
+                                            posts: resu,
+                                        }
+                                    });
+                                    conn.end();
+                                }
+                            });
+                        }
                     });
-                    conn.end();
                 }
             });
         }, () => {

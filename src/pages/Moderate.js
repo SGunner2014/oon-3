@@ -4,6 +4,9 @@ import {getPosts} from '../posts/posts';
 
 const Moderate = ({username, token}) => {
     const [posts, setPosts] = useState([]);
+    const [hasNextPage, setHasNextPage] = useState(false);
+    const [hasPreviousPage, setHasPreviousPage] = useState(false);
+    const [beginning, setBeginning] = useState(0);
 
     const renderPosts = (content) => {
         let newPosts = [];
@@ -29,10 +32,40 @@ const Moderate = ({username, token}) => {
         setPosts(newPosts);
     };
 
+    const getNextPage = () => {
+        if (hasNextPage) {
+            getPosts(beginning + 25, token, (result) => {
+                if (result) {
+                    renderPosts(result.posts);
+                    setHasNextPage(result.hasNext);
+                    setHasPreviousPage(result.hasPrevious);
+                    setBeginning(beginning + 25); // increment by 25 to get the next few posts
+                }
+            });
+        }
+    };
+
+    const getPreviousPage = () => {
+        if (hasPreviousPage) {
+            getPosts(beginning - 25, token, (result) => {
+                if (result) {
+                    renderPosts(result.posts);
+                    setHasNextPage(result.hasNextPage);
+                    setHasPreviousPage(result.hasPreviousPage);
+                    setBeginning(beginning - 25);
+                }
+            });
+        }
+    }
+
     if (posts.length === 0) {
-        getPosts(null, token, (result) => {
-            if (result)
-                renderPosts(result);
+        getPosts(beginning, token, (result) => {
+            if (result) {
+                renderPosts(result.posts);
+                setHasNextPage(result.hasNextPage);
+                setHasPreviousPage(result.hasPreviousPage);
+                setBeginning(beginning);
+            }
         });
     }
 
@@ -55,6 +88,26 @@ const Moderate = ({username, token}) => {
                     {posts}
                 </tbody>
             </table>
+            <div className="row">
+                <div className="col-sm-6">
+                    {
+                        hasPreviousPage && (
+                            <button role="button" onClick={getPreviousPage} className="btn btn-sm btn-success">&lt;&lt; Previous Page</button>
+                        )
+                    }
+                    {
+                        !hasPreviousPage && (
+                            <button role="button" className="btn btn-small btn-success" disabled>&lt;&lt; Previous Page</button>
+                        )
+                    }
+                </div>
+                <div className="col-sm-6">
+                    {
+
+                    }
+                    <button onClick={getNextPage} className="btn btn-sm btn-success">Next Page &gt;&gt;</button>
+                </div>
+            </div>
         </div>
     );
 }

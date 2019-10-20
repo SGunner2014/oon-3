@@ -10,15 +10,15 @@ apiProxy.on('error', (err, req, res) => {
 	res.status(500).send("Proxy Error");
 });
 
-app.all("/api/user*", (req, res) => {
+app.all("/api/auth*", (req, res) => {
 	apiProxy.web(req, res, {
 		target: "http://localhost:3001",
 	});
 });
 
-app.all("/api/posts*", (req, res) => {
+app.all("/api/user*", (req, res) => {
 	console.log(req.path);
-	apiproxy.web(req, res, {
+	apiProxy.web(req, res, {
 		target: "http://localhost:3002",
 	});
 });
