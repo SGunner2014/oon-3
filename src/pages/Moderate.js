@@ -1,13 +1,21 @@
 import React, {useState} from 'react';
 import {connect} from 'react-redux';
 import {getPosts} from '../posts/posts';
-import {Link} from 'react-router-dom';
+import {setPostID} from '../redux/actions/moderationActions';
+import {Link, Redirect} from 'react-router-dom';
 
-const Moderate = ({username, token}) => {
+const Moderate = ({dispatch, username, token, postid}) => {
     const [posts, setPosts] = useState([]);
     const [hasNextPage, setHasNextPage] = useState(false);
     const [hasPreviousPage, setHasPreviousPage] = useState(false);
     const [beginning, setBeginning] = useState(0);
+    const [redirect, setRedirect] = useState(false);
+
+    // Forwards the user to the moderation page
+    const moderatePost = post => {
+        dispatch(setPostID(post));
+        setRedirect(true);
+    };
 
     // This takes a list of posts and transforms it into a displayable format
     const renderPosts = (content) => {
@@ -28,7 +36,7 @@ const Moderate = ({username, token}) => {
                     <td style={rowStyle}>{cPost["link"]}</td>
                     <td>
                         {/* Actions to display for this post */}
-                        <Link className="btn btn-sm btn-primary" to={`/admin/moderate/${cPost["id"]}`}>Edit</Link>
+                        <Link className="btn btn-sm btn-primary" onClick={() => moderatePost(cPost["id"])}>Edit</Link>
                     </td>
                 </tr>
             );
@@ -73,6 +81,12 @@ const Moderate = ({username, token}) => {
                 setBeginning(beginning);
             }
         });
+    }
+
+    if (redirect) {
+        return (
+            <Redirect to={`/admin/moderate/${postid}`}></Redirect>
+        );
     }
 
     return (
@@ -128,6 +142,7 @@ const Moderate = ({username, token}) => {
 const mapStateToProps = (state) => ({
     username: state.adminReducer.username,
     token: state.adminReducer.token,
+    postid: state.moderationReducer.postid,
 });
 
 export default connect(mapStateToProps)(Moderate);

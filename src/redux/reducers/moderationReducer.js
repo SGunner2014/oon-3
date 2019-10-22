@@ -8,7 +8,7 @@ const moderationReducer = (state = INITIAL_STATE, action) => {
         case "setPostID":
             return {
                 ...state,
-                postid: action.posts,
+                postid: action.postid,
             };
         default:
             return state;

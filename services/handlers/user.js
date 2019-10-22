@@ -14,6 +14,7 @@
     6 - The database was unable to handle your request
     7 - Invalid token
     8 - Token and post id not specified
+    9 - The specified post was not found
 */
 
 const auth = require("../auth/auth");
@@ -147,7 +148,39 @@ function handleGetPostDetails(req, res) {
     let params = req.query;
     if (params.token && params.postid) {
         auth.verifyToken(params.token, () => {
-
+            let conn = createConn();
+            let initialQuery = `SELECT * FROM posts
+                WHERE id = ?
+                LIMIT 1;`;
+            let qData = [params.postid];
+            conn.query(initialQuery, qData, (err, resu, fields) => {
+                if (err) {
+                    conn.end();
+                    res.send({
+                        succ: false,
+                        message: "The database was unable to service your request",
+                        code: 6,
+                    });
+                } else {
+                    if (resu.length == 1) {
+                        conn.end();
+                        res.send({
+                            succ: true,
+                            contents: {
+                                post: resu[0],
+                            },
+                        });
+                    } else {
+                        conn.end();
+                        res.send({
+                            succ: false,
+                            message: "The specified post was not found",
+                            postid: params.postid,
+                            code: 9,
+                        });
+                    }
+                }
+            });
         }, () => {
             res.send({
                 succ: false,
@@ -172,6 +205,9 @@ const userHandler = (req, res) => {
         switch(params.mode) {
             case "LOGIN_USER":
                 handleUserLogin(req, res);
+                break;
+            case "GET_POST_DETAILS":
+                handleGetPostDetails(req, res);
                 break;
             case "FETCH_POSTS":
                 handleMassFetch(req, res);

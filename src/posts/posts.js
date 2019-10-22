@@ -46,10 +46,34 @@ const getPostDetails = (postid, token, callback) => {
 
 // This is used to change an aspect of a post for moderation purposes
 const changePostDetails = (postid, token, post, callback) => {
-    // TODO: complete
+    let toAdd = "?mode=ALTER_POST";
+    // Let's serialise some data first
+    // In hindsight, this would have been better served over POST, but we'll get to that another day.
+    let serialisedData = "";
+    attributes = ["title", "link", "redditLink", "isOnion"];
+    for (let i = 0; i < attributes.length; i++) {
+        serialisedData += "&" + attributes[i] + "=" + encodeURI(post[attributes[i]]);
+    }
+    axios.get(ROOT_ADDR + toAdd + "&token=" + token + serialisedData)
+    .then((res) => {
+        if (res.data) {
+            if (res.data.succ) {
+                callback(true);
+            } else {
+                callback(false);
+            }
+        } else {
+            callback(false);
+        }
+    })
+    .catch((e) => {
+        console.log(e);
+        callback(false);
+    });
 }
 
 export {
     getPosts,
     getPostDetails,
+    changePostDetails,
 };
