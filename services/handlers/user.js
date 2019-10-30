@@ -13,6 +13,8 @@
     5 - Token and beginning not specified
     6 - The database was unable to handle your request
     7 - Invalid token
+    8 - Token and post id not specified
+    9 - The specified post was not found
 */
 
 const auth = require("../auth/auth");
@@ -64,6 +66,7 @@ function handleUserLogin(req, res) {
 function handleMassFetch(req, res) {
     let params = req.query;
     if (params.beginning && params.token) {
+        params.beginning = parseInt(params.beginning);
         auth.verifyToken(params.token, () => {
             let conn = createConn();
             let initialQuery = `SELECT * FROM posts
@@ -80,11 +83,47 @@ function handleMassFetch(req, res) {
                     });
                     conn.end();
                 } else {
-                    res.send({
-                        succ: true,
-                        contents: resu,
+                    // now, we see if there are posts before and after
+                    initialQuery = `SELECT COUNT(id) AS 'postCount' FROM posts
+                        WHERE id < ?
+                        ORDER BY id;`;
+                    conn.query(initialQuery, qData, (err, resuu, fields) => {
+                        if (err) {
+                            conn.end();
+                            res.send({
+                                succ: false,
+                                message: "The database was unable to handle your request.",
+                                code: 6,
+                                _: err,
+                            });
+                        } else {
+                            initialQuery = `SELECT COUNT(id) AS 'postCount' FROM posts
+                                WHERE id >= ?
+                                ORDER BY id;`;
+                            qData = [params.beginning + 25];
+                            conn.query(initialQuery, qData, (err, resuuu, fields) => {
+                                if (err) {
+                                    conn.end();
+                                    res.send({
+                                        succ: false,
+                                        message: "The database was unable to handle your request.",
+                                        code: 6,
+                                    });
+                                } else {
+                                    res.send({
+                                        succ: true,
+                                        contents: {
+                                            hasPrevious: resuu[0]["postCount"] > 0,
+                                            hasNext: resuuu[0]["postCount"] > 0,
+                                            dump: qData,
+                                            posts: resu,
+                                        }
+                                    });
+                                    conn.end();
+                                }
+                            });
+                        }
                     });
-                    conn.end();
                 }
             });
         }, () => {
@@ -104,6 +143,60 @@ function handleMassFetch(req, res) {
     }
 }
 
+// Handles a GET_POST_DETAILS request
+function handleGetPostDetails(req, res) {
+    let params = req.query;
+    if (params.token && params.postid) {
+        auth.verifyToken(params.token, () => {
+            let conn = createConn();
+            let initialQuery = `SELECT * FROM posts
+                WHERE id = ?
+                LIMIT 1;`;
+            let qData = [params.postid];
+            conn.query(initialQuery, qData, (err, resu, fields) => {
+                if (err) {
+                    conn.end();
+                    res.send({
+                        succ: false,
+                        message: "The database was unable to service your request",
+                        code: 6,
+                    });
+                } else {
+                    if (resu.length == 1) {
+                        conn.end();
+                        res.send({
+                            succ: true,
+                            contents: {
+                                post: resu[0],
+                            },
+                        });
+                    } else {
+                        conn.end();
+                        res.send({
+                            succ: false,
+                            message: "The specified post was not found",
+                            postid: params.postid,
+                            code: 9,
+                        });
+                    }
+                }
+            });
+        }, () => {
+            res.send({
+                succ: false,
+                message: "Invalid token",
+                code: 7,
+            });
+        });
+    } else {
+        res.send({
+            succ: false,
+            message: "Token and post id not specified",
+            code: 8,
+        });
+    }
+}
+
 // Root handler for all incoming requests
 const userHandler = (req, res) => {
     let params = req.query;
@@ -112,6 +205,9 @@ const userHandler = (req, res) => {
         switch(params.mode) {
             case "LOGIN_USER":
                 handleUserLogin(req, res);
+                break;
+            case "GET_POST_DETAILS":
+                handleGetPostDetails(req, res);
                 break;
             case "FETCH_POSTS":
                 handleMassFetch(req, res);

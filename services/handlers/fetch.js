@@ -51,7 +51,8 @@ const fetchHandler = function(req, res) {
                 res.send({
                     succ: false,
                     msg: "Invalid operating mode specified.",
-                    code: 2
+                    code: 2,
+                    mode: params.mode,
                 });
         }
     } else {

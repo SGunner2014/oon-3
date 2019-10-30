@@ -1,10 +1,23 @@
 import React, {useState} from 'react';
 import {connect} from 'react-redux';
 import {getPosts} from '../posts/posts';
+import {setPostID} from '../redux/actions/moderationActions';
+import {Link, Redirect} from 'react-router-dom';
 
-const Moderate = ({username, token}) => {
+const Moderate = ({dispatch, username, token, postid}) => {
     const [posts, setPosts] = useState([]);
+    const [hasNextPage, setHasNextPage] = useState(false);
+    const [hasPreviousPage, setHasPreviousPage] = useState(false);
+    const [beginning, setBeginning] = useState(0);
+    const [redirect, setRedirect] = useState(false);
 
+    // Forwards the user to the moderation page
+    const moderatePost = post => {
+        dispatch(setPostID(post));
+        setRedirect(true);
+    };
+
+    // This takes a list of posts and transforms it into a displayable format
     const renderPosts = (content) => {
         let newPosts = [];
         const rowStyle = {
@@ -21,7 +34,10 @@ const Moderate = ({username, token}) => {
                     <td style={rowStyle}>{cPost["title"]}</td>
                     <td style={rowStyle}>{cPost["redditLink"]}</td>
                     <td style={rowStyle}>{cPost["link"]}</td>
-                    <td></td>
+                    <td>
+                        {/* Actions to display for this post */}
+                        <Link className="btn btn-sm btn-primary" onClick={() => moderatePost(cPost["id"])}>Edit</Link>
+                    </td>
                 </tr>
             );
         }
@@ -29,15 +45,52 @@ const Moderate = ({username, token}) => {
         setPosts(newPosts);
     };
 
+    const getNextPage = () => {
+        if (hasNextPage) {
+            getPosts(beginning + 25, token, (result) => {
+                if (result) {
+                    renderPosts(result.posts);
+                    setHasNextPage(result.hasNext);
+                    setHasPreviousPage(result.hasPrevious);
+                    setBeginning(beginning + 25); // increment by 25 to get the next few posts
+                }
+            });
+        }
+    };
+
+    const getPreviousPage = () => {
+        if (hasPreviousPage) {
+            getPosts(beginning - 25, token, (result) => {
+                if (result) {
+                    renderPosts(result.posts);
+                    setHasNextPage(result.hasNext);
+                    setHasPreviousPage(result.hasPrevious);
+                    setBeginning(beginning - 25);
+                }
+            });
+        }
+    }
+
+    // Make sure we start with a list of posts and not an empty page
     if (posts.length === 0) {
-        getPosts(null, token, (result) => {
-            if (result)
-                renderPosts(result);
+        getPosts(beginning, token, (result) => {
+            if (result) {
+                renderPosts(result.posts);
+                setHasNextPage(result.hasNext);
+                setHasPreviousPage(result.hasPrevious);
+                setBeginning(beginning);
+            }
         });
     }
 
+    if (redirect) {
+        return (
+            <Redirect to={`/admin/moderate/${postid}`}></Redirect>
+        );
+    }
+
     return (
-        <div className="container mt-2">
+        <div className="container mt-2 mb-2">
             <h1>Moderate Posts</h1>
             <p className="text-muted">Posts available for moderation:</p>
             <hr/>
@@ -55,6 +108,33 @@ const Moderate = ({username, token}) => {
                     {posts}
                 </tbody>
             </table>
+            <div className="row">
+                {/* Conditional buttons for next and previous pages */}
+                <div className="col-sm-6">
+                    {
+                        hasPreviousPage && (
+                            <button role="button" onClick={getPreviousPage} className="btn btn-sm btn-success">&lt;&lt; Previous Page</button>
+                        )
+                    }
+                    {
+                        !hasPreviousPage && (
+                            <button role="button" className="btn btn-sm btn-success" disabled>&lt;&lt; Previous Page</button>
+                        )
+                    }
+                </div>
+                <div className="col-sm-6">
+                    {
+                        hasNextPage && (
+                            <button role="button" onClick={getNextPage} className="btn btn-sm btn-success">Next Page &gt;&gt;</button>
+                        )
+                    }
+                    {
+                        !hasNextPage && (
+                            <button role="button" className="btn btn-sm btn-success" disabled>Next Page &gt;&gt;</button>
+                        )
+                    }
+                </div>
+            </div>
         </div>
     );
 }
@@ -62,6 +142,7 @@ const Moderate = ({username, token}) => {
 const mapStateToProps = (state) => ({
     username: state.adminReducer.username,
     token: state.adminReducer.token,
+    postid: state.moderationReducer.postid,
 });
 
 export default connect(mapStateToProps)(Moderate);

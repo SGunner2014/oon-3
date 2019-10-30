@@ -29,7 +29,6 @@ const AdminLogin = ({dispatch, username, token, loggedIn}) => {
     };
 
     if (redirect) {
-        console.log("hello!");
         return (
             <Redirect to="/admin"></Redirect>
         );
