@@ -10,8 +10,9 @@ const ModeratePost = ({dispatch, username, token, postid}) => {
 
     // Now we have to register some handlers for each of the attributes of the post
     const onAttributeChange = (e, attr) => {
+        console.log("called");
         let tPost = post;
-        if (attr === "isOnion")
+        if (attr == "isOnion")
             tPost[attr] = e.target.checked;
         else
             tPost[attr] = e.target.value;
@@ -63,7 +64,7 @@ const ModeratePost = ({dispatch, username, token, postid}) => {
                             {/* List all the attributes for the post */}
                             <div className="form-group">
                                 <label for="postName">Post Title</label>
-                                <input className="form-control" onChange={(e) => {onAttributeChange(e, "title")}} type="text" value={post.title}/>
+                                <input className="form-control" onChange={(e) => {onAttributeChange(e, "title")}} type="text" value={post["title"]}/>
                             </div>
                             <div className="form-group">
                                 <label for="redditLink">Reddit Link</label>

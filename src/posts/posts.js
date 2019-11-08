@@ -3,7 +3,7 @@
 */
 
 const axios = require("axios");
-const ROOT_ADDR = "http://localhost:8080/api/user";
+const ROOT_ADDR = "http://localhost:8080/api/auth";
 
 const getPosts = (firstID = 0, token, callback) => {
     let toAdd = "?mode=FETCH_POSTS";
@@ -50,7 +50,7 @@ const changePostDetails = (postid, token, post, callback) => {
     // Let's serialise some data first
     // In hindsight, this would have been better served over POST, but we'll get to that another day.
     let serialisedData = "";
-    attributes = ["title", "link", "redditLink", "isOnion"];
+    let attributes = ["title", "link", "redditLink", "isOnion"];
     for (let i = 0; i < attributes.length; i++) {
         serialisedData += "&" + attributes[i] + "=" + encodeURI(post[attributes[i]]);
     }

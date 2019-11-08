@@ -2,7 +2,7 @@ import React from 'react';
 import {setIsOnion, setTitle, setRedditLink, setLink} from '../redux/actions/postActions';
 import { connect } from 'react-redux';
 const axios = require("axios");
-const REQUEST_URL = "http://localhost:3000/api/posts?mode=FETCH_ARTICLE";
+const REQUEST_URL = "http://localhost:8080/api/user?mode=FETCH_ARTICLE";
 
 const Home = ({dispatch, title, redditLink, link, isOnion}) => {
     const getPost = () => {

@@ -1,5 +1,8 @@
 const express = require("express");
-const postsHandler = require("./handlers/user");
+const postsHandler = require("./handlers/fetch");
+const obtainPost = require("../posts/reddit");
+
+setInterval(obtainPost, 3000);
 
 const app = express();
 
