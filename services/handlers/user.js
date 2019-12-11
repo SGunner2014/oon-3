@@ -197,6 +197,39 @@ function handleGetPostDetails(req, res) {
     }
 }
 
+// Handles a UPDATE_POST request
+function handleUpdatePost(req, res) {
+    let params = req.query;
+    if (params.token && params.postid && params.content) {
+        auth.verifyToken(params.token, () => {
+            let conn = createConn();
+            let initialQuery = `SELECT COUNT(id)
+                AS postCount
+                FROM posts
+                WHERE id = ?;`;
+            let qData = [params.postid];
+            conn.query(initialQuery, qData, (err, resu, fields) => {
+                if (err) {
+                    res.send({
+                        succ: false,
+                        message: "An issue occurred when attempting to query the database.",
+                        code: 6
+                    });
+                    conn.end();
+                } else {
+                    // Now we need to get hold of the post and issue an update statement for the record
+                }
+            });
+        }, () => {
+            res.send({
+                succ: false,
+                message: "Invalid token",
+                code: 7
+            });
+        });
+    }
+}
+
 // Root handler for all incoming requests
 const userHandler = (req, res) => {
     let params = req.query;
@@ -208,6 +241,9 @@ const userHandler = (req, res) => {
                 break;
             case "GET_POST_DETAILS":
                 handleGetPostDetails(req, res);
+                break;
+            case "UPDATE_POST":
+                handleUpdatePost(req, res);
                 break;
             case "FETCH_POSTS":
                 handleMassFetch(req, res);
