@@ -1,5 +1,4 @@
 import React from 'react';
-import './App.css';
 import {Switch, Route, Link} from 'react-router-dom';
 import {connect} from 'react-redux';
 import Home from './pages/Home';
@@ -10,6 +9,7 @@ import ModeratePost from './pages/ModeratePost';
 import jQuery from 'jquery';
 import 'bootstrap/dist/js/bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
 import ProtectedRoute from './routing/ProtectedRoute';
 import {setUsername, setToken, setLoggedIn} from './redux/actions/adminActions';
 
